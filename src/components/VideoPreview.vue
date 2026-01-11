@@ -6,8 +6,10 @@
       muted
       :src="currentVideoUrl"
       data-testid="video"
+      preload="metadata"
       @loadeddata="handleLoadedData"
       @seeked="handleSeeked"
+      @ended="handleCurVideoEnded"
     ></video>
     <canvas ref="mediaCanvasRef"></canvas>
     <div class="debug">
@@ -26,8 +28,10 @@ import { useVideoDataStore } from "../store/videoDataStore";
 import { usePerformance } from "../hooks/usePerformance";
 
 const { mediaRef, mediaCanvasRef } = storeToRefs(useMediaStore());
-const { onVideoLoadedData, videoMeta } = useVideoStore();
-const { currentVideoUrl } = storeToRefs(useVideoDataStore());
+const { onVideoLoadedData, videoMeta, togglePlay } = useVideoStore();
+const { currentVideoUrl, currentVideoIdx, videoUrls } = storeToRefs(
+  useVideoDataStore()
+);
 const { startTime, endTime, costTime } = usePerformance();
 
 console.log(mediaRef, mediaCanvasRef, videoMeta);
@@ -35,9 +39,17 @@ console.log(mediaRef, mediaCanvasRef, videoMeta);
 function handleLoadedData() {
   endTime.value = performance.now();
   onVideoLoadedData();
+  if (videoMeta.autoPlay) {
+    togglePlay();
+  }
 }
 function handleSeeked() {
   endTime.value = performance.now();
+}
+function handleCurVideoEnded() {
+  if (currentVideoIdx.value < videoUrls.value.length - 1) {
+    currentVideoIdx.value += 1;
+  }
 }
 </script>
 
