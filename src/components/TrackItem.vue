@@ -8,12 +8,19 @@
     }"
   >
     视频{{ videoIdx + 1 }}
+    <div
+      class="pointer"
+      v-if="currentVideoIdx === videoIdx"
+      :style="{
+        left: pointerLeft,
+      }"
+    ></div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { useMouseInElement } from "@vueuse/core";
-import { useTemplateRef } from "vue";
+import { computed, useTemplateRef } from "vue";
 import { useVideoStore } from "../store/videoStore";
 import { useVideoDataStore } from "../store/videoDataStore";
 import { storeToRefs } from "pinia";
@@ -36,6 +43,10 @@ const trackItemRef = useTemplateRef("track-item");
 
 const { elementX, elementWidth } = useMouseInElement(trackItemRef);
 
+const pointerLeft = computed(() => {
+  return (videoMeta.value.curTime / videoMeta.value.duration) * 100 + "%";
+});
+
 function handleClickTrackItem() {
   startTime.value = performance.now();
   if (props.videoIdx === currentVideoIdx.value) {
@@ -49,3 +60,17 @@ function handleClickTrackItem() {
   }
 }
 </script>
+
+<style lang="scss">
+.track-item {
+  position: relative;
+  .pointer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 2px;
+    background-color: red;
+  }
+}
+</style>

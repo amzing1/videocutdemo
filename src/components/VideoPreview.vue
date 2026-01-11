@@ -6,6 +6,7 @@
       muted
       :src="currentVideoUrl"
       data-testid="video"
+      preload="metadata"
       @loadeddata="handleLoadedData"
       @seeked="handleSeeked"
     ></video> -->
@@ -57,6 +58,11 @@ function handleLoadedData(idx: number) {
 }
 function handleSeeked() {
   endTime.value = performance.now();
+}
+function handleCurVideoEnded() {
+  if (currentVideoIdx.value < videoUrls.value.length - 1) {
+    currentVideoIdx.value += 1;
+  }
 }
 </script>
 

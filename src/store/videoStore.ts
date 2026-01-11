@@ -10,6 +10,7 @@ export const useVideoStore = defineStore("video", () => {
     zoomRate: 1,
     isPlaying: false,
     duration: 0,
+    autoPlay: false,
   });
   let isFirstLoaded = true;
 
@@ -37,8 +38,13 @@ export const useVideoStore = defineStore("video", () => {
   }
   function togglePlay() {
     if (!mediaRef.value) return;
-    mediaRef.value = mediaRef.value;
-    mediaRef.value.paused ? mediaRef.value.play() : mediaRef.value.pause();
+    if (mediaRef.value.paused) {
+      videoMeta.autoPlay = true;
+      mediaRef.value.play();
+    } else {
+      videoMeta.autoPlay = false;
+      mediaRef.value.pause();
+    }
   }
   function setTime(time: number) {
     if (!mediaRef.value) return;
