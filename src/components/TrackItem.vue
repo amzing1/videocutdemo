@@ -18,6 +18,7 @@ import { useVideoStore } from "../store/videoStore";
 import { useVideoDataStore } from "../store/videoDataStore";
 import { storeToRefs } from "pinia";
 import { usePerformance } from "../hooks/usePerformance";
+import { useMediaStore } from "../store/mediaStore";
 
 const videoStore = useVideoStore();
 const videoDataStore = useVideoDataStore();
@@ -25,6 +26,7 @@ const { currentVideoIdx } = storeToRefs(videoDataStore);
 const { videoMeta } = storeToRefs(videoStore);
 const { setTime } = videoStore;
 const { startTime } = usePerformance();
+const { setCurMedia } = useMediaStore();
 
 const props = defineProps<{
   videoIdx: number;
@@ -41,7 +43,9 @@ function handleClickTrackItem() {
     const time = videoMeta.value.duration * persent;
     setTime(time);
   } else {
+    // TODO 动态缓存
     currentVideoIdx.value = props.videoIdx;
+    setCurMedia(props.videoIdx);
   }
 }
 </script>

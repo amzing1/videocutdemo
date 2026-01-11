@@ -12,11 +12,17 @@ export const useMediaStore = defineStore("mediaStore", () => {
     w: 0,
     h: 0,
   });
+
+  const videoRefs = ref<HTMLVideoElement[]>([]);
   // img 或 video 标签
   const mediaRef = ref<HTMLVideoElement | null>(null);
   // 用于展示图片或者视频的 canvas 元素
   const mediaCanvasRef = ref<HTMLCanvasElement | null>(null);
 
+  function setCurMedia(idx: number) {
+    mediaRef.value = videoRefs.value[idx]!;
+    onChangeCanvasSize();
+  }
   function onMediaLoaded() {
     onChangeCanvasSize();
   }
@@ -106,11 +112,13 @@ export const useMediaStore = defineStore("mediaStore", () => {
   window.addEventListener("resize", onChangeCanvasSize);
 
   return {
+    videoRefs,
     mediaRef,
     mediaCanvasRef,
     canvasPos,
     mediaSize,
     onMediaLoaded,
     draw,
+    setCurMedia,
   };
 });

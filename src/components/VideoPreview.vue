@@ -1,6 +1,6 @@
 <template>
   <div class="video-preview">
-    <video
+    <!-- <video
       ref="mediaRef"
       crossorigin="anonymous"
       muted
@@ -8,6 +8,15 @@
       data-testid="video"
       @loadeddata="handleLoadedData"
       @seeked="handleSeeked"
+    ></video> -->
+    <video
+      v-for="vIdx in cachedIdxs"
+      ref="videoRefs"
+      crossorigin="anonymous"
+      muted
+      :src="videoUrls[vIdx]"
+      preload="metadata"
+      @loadeddata="handleLoadedData(vIdx)"
     ></video>
     <canvas ref="mediaCanvasRef"></canvas>
     <div class="debug">
@@ -24,17 +33,27 @@ import { useMediaStore } from "../store/mediaStore";
 import { useVideoStore } from "../store/videoStore";
 import { useVideoDataStore } from "../store/videoDataStore";
 import { usePerformance } from "../hooks/usePerformance";
+import { onMounted, ref } from "vue";
 
-const { mediaRef, mediaCanvasRef } = storeToRefs(useMediaStore());
+const { mediaRef, mediaCanvasRef, videoRefs } = storeToRefs(useMediaStore());
+const { setCurMedia } = useMediaStore();
 const { onVideoLoadedData, videoMeta } = useVideoStore();
-const { currentVideoUrl } = storeToRefs(useVideoDataStore());
+const { cachedIdxs, videoUrls, currentVideoIdx } = storeToRefs(
+  useVideoDataStore()
+);
 const { startTime, endTime, costTime } = usePerformance();
 
 console.log(mediaRef, mediaCanvasRef, videoMeta);
 
-function handleLoadedData() {
-  endTime.value = performance.now();
-  onVideoLoadedData();
+onMounted(() => {
+  setCurMedia(currentVideoIdx.value);
+});
+
+function handleLoadedData(idx: number) {
+  if (idx === currentVideoIdx.value) {
+    endTime.value = performance.now();
+    onVideoLoadedData();
+  }
 }
 function handleSeeked() {
   endTime.value = performance.now();
