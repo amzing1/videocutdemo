@@ -30,8 +30,9 @@ import { useMediaStore } from "../store/mediaStore";
 const videoStore = useVideoStore();
 const videoDataStore = useVideoDataStore();
 const { currentVideoIdx } = storeToRefs(videoDataStore);
+const { setVideoIdx } = videoDataStore;
 const { videoMeta } = storeToRefs(videoStore);
-const { setTime } = videoStore;
+const { setTime, setCurVideo } = videoStore;
 const { startTime } = usePerformance();
 const { setCurMedia } = useMediaStore();
 
@@ -54,9 +55,9 @@ function handleClickTrackItem() {
     const time = videoMeta.value.duration * persent;
     setTime(time);
   } else {
-    // TODO 动态缓存
-    currentVideoIdx.value = props.videoIdx;
-    setCurMedia(props.videoIdx);
+    setVideoIdx(props.videoIdx);
+    // setCurMedia(props.videoIdx);
+    setCurVideo(props.videoIdx);
   }
 }
 </script>

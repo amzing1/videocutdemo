@@ -1,17 +1,7 @@
 <template>
   <div class="video-preview">
-    <!-- <video
-      ref="mediaRef"
-      crossorigin="anonymous"
-      muted
-      :src="currentVideoUrl"
-      data-testid="video"
-      preload="metadata"
-      @loadeddata="handleLoadedData"
-      @seeked="handleSeeked"
-    ></video> -->
     <video
-      v-for="vIdx in cachedIdxs"
+      v-for="(vIdx, idx) in cachedIdxs"
       ref="videoRefs"
       crossorigin="anonymous"
       muted
@@ -19,6 +9,7 @@
       preload="metadata"
       @loadeddata="handleLoadedData(vIdx)"
     ></video>
+
     <canvas ref="mediaCanvasRef"></canvas>
     <div class="debug">
       <p>start: {{ startTime }}</p>
@@ -38,7 +29,7 @@ import { onMounted, ref } from "vue";
 
 const { mediaRef, mediaCanvasRef, videoRefs } = storeToRefs(useMediaStore());
 const { setCurMedia } = useMediaStore();
-const { onVideoLoadedData, videoMeta } = useVideoStore();
+const { setCurVideo, videoMeta } = useVideoStore();
 const { cachedIdxs, videoUrls, currentVideoIdx } = storeToRefs(
   useVideoDataStore()
 );
@@ -51,9 +42,11 @@ onMounted(() => {
 });
 
 function handleLoadedData(idx: number) {
+  console.log("handleLoadedData", idx, currentVideoIdx.value);
+
   if (idx === currentVideoIdx.value) {
-    endTime.value = performance.now();
-    onVideoLoadedData();
+    // endTime.value = performance.now();
+    setCurVideo(idx);
   }
 }
 function handleSeeked() {
@@ -81,7 +74,15 @@ function handleCurVideoEnded() {
   }
   canvas {
     visibility: visible;
+    background-color: transparent;
   }
+
+  video {
+    position: unset;
+    width: 100px;
+    visibility: visible;
+  }
+
   .debug {
     position: absolute;
     top: 12px;

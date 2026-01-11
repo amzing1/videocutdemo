@@ -1,9 +1,11 @@
 import { defineStore, storeToRefs } from "pinia";
 import { computed, reactive } from "vue";
 import { useMediaStore } from "./mediaStore";
+import { useVideoDataStore } from "./videoDataStore";
 export const useVideoStore = defineStore("video", () => {
   const { mediaRef } = storeToRefs(useMediaStore());
-  const { onMediaLoaded, draw } = useMediaStore();
+  const { onMediaLoaded, draw, setCurMedia } = useMediaStore();
+  const { cachedIdxs } = storeToRefs(useVideoDataStore());
   const videoMeta = reactive({
     curTime: 0,
     totalFrameCount: 0,
@@ -14,15 +16,25 @@ export const useVideoStore = defineStore("video", () => {
   });
   let isFirstLoaded = true;
 
-  async function onVideoLoadedData() {
+  function setCurVideo(idx: number) {
     if (!mediaRef.value) return;
-    onMediaLoaded();
+    const videoTagIdx = cachedIdxs.value.findIndex((v) => v === idx);
+    setCurMedia(videoTagIdx);
     videoMeta.duration = (mediaRef.value as HTMLVideoElement).duration;
     if (isFirstLoaded) {
       drawVideo();
       isFirstLoaded = false;
     }
   }
+  // async function onVideoLoadedData() {
+  //   if (!mediaRef.value) return;
+  //   onMediaLoaded();
+  //   videoMeta.duration = (mediaRef.value as HTMLVideoElement).duration;
+  //   if (isFirstLoaded) {
+  //     drawVideo();
+  //     isFirstLoaded = false;
+  //   }
+  // }
   function drawVideo() {
     const innerDraw = () => {
       if (!mediaRef.value) return;
@@ -55,7 +67,7 @@ export const useVideoStore = defineStore("video", () => {
   return {
     videoMeta,
     onMediaLoaded,
-    onVideoLoadedData,
+    setCurVideo,
     togglePlay,
     setTime,
   };
