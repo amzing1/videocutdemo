@@ -8,6 +8,7 @@
       :src="videoUrls[vIdx]"
       preload="metadata"
       @loadeddata="handleLoadedData(vIdx)"
+      @ended="handleCurVideoEnded"
     ></video>
 
     <canvas ref="mediaCanvasRef"></canvas>
@@ -33,6 +34,7 @@ const { setCurVideo, videoMeta } = useVideoStore();
 const { cachedIdxs, videoUrls, currentVideoIdx } = storeToRefs(
   useVideoDataStore()
 );
+const { setVideoIdx } = useVideoDataStore();
 const { startTime, endTime, costTime } = usePerformance();
 
 console.log(mediaRef, mediaCanvasRef, videoMeta);
@@ -45,7 +47,6 @@ function handleLoadedData(idx: number) {
   console.log("handleLoadedData", idx, currentVideoIdx.value);
 
   if (idx === currentVideoIdx.value) {
-    // endTime.value = performance.now();
     setCurVideo(idx);
   }
 }
@@ -54,7 +55,12 @@ function handleSeeked() {
 }
 function handleCurVideoEnded() {
   if (currentVideoIdx.value < videoUrls.value.length - 1) {
-    currentVideoIdx.value += 1;
+    const idx = currentVideoIdx.value + 1;
+    setVideoIdx(idx);
+    setCurVideo(idx);
+    if (videoMeta.autoPlay) {
+      mediaRef.value?.play();
+    }
   }
 }
 </script>
