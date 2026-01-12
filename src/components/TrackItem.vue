@@ -58,6 +58,9 @@ function handleClickTrackItem() {
     setVideoIdx(props.videoIdx);
     // setCurMedia(props.videoIdx);
     setCurVideo(props.videoIdx);
+    const persent = elementX.value / elementWidth.value;
+    const time = videoMeta.value.duration * persent;
+    setTime(time);
   }
 }
 </script>

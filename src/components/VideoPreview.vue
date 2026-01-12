@@ -9,6 +9,7 @@
       preload="metadata"
       @loadeddata="handleLoadedData(vIdx)"
       @ended="handleCurVideoEnded"
+      @seeked="handleSeeked(vIdx)"
     ></video>
 
     <canvas ref="mediaCanvasRef"></canvas>
@@ -50,8 +51,10 @@ function handleLoadedData(idx: number) {
     setCurVideo(idx);
   }
 }
-function handleSeeked() {
-  endTime.value = performance.now();
+function handleSeeked(idx: number) {
+  if (idx === currentVideoIdx.value) {
+    endTime.value = performance.now();
+  }
 }
 function handleCurVideoEnded() {
   if (currentVideoIdx.value < videoUrls.value.length - 1) {
@@ -83,11 +86,11 @@ function handleCurVideoEnded() {
     background-color: transparent;
   }
 
-  video {
-    position: unset;
-    width: 100px;
-    visibility: visible;
-  }
+  // video {
+  //   position: unset;
+  //   width: 100px;
+  //   visibility: visible;
+  // }
 
   .debug {
     position: absolute;
