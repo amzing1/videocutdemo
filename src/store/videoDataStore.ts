@@ -13,6 +13,7 @@ export const useVideoDataStore = defineStore("videoDataStore", () => {
     "https://cdn.kesci.com/admin/t8pivaz1u/8.m3u8",
     "https://cdn.kesci.com/admin/t8pivlqe3/9.m3u8",
     "https://cdn.kesci.com/admin/t8pivx7cd/10.m3u8",
+    "https://cdn.kesci.com/admin/t8qvjugkp/index.m3u8"
   ]);
 
   const cachedIdxs = ref([0, 1, 2, 3, 4]);
