@@ -1,16 +1,18 @@
 <template>
   <div class="timeline">
     <div class="video-controller">
-      <button @click="addVideo">加载下一个视频</button>
-      <button @click="togglePlay">
-        {{ videoMeta.isPlaying ? "暂停" : "播放" }}
+      <button @click="init(allBlobs)">加载视频</button>
+      <button @click="playVideo">
+        {{ isPlaying ? "暂停" : "播放" }}
       </button>
+      <input type="checkbox" v-model="dragMode" />
     </div>
     <div class="track-container">
       <TrackItem
-        v-for="(_, idx) in videoUrls"
+        v-for="(c, idx) in clipMetas"
         :key="idx"
         :video-idx="idx"
+        :duration="c?.duration || 0"
       ></TrackItem>
     </div>
   </div>
@@ -18,18 +20,14 @@
 
 <script setup lang="ts">
 import { storeToRefs } from "pinia";
-import { useVideoStore } from "../store/videoStore";
+import { useFrameRender } from "../hooks/userFrameRender";
 import { useVideoDataStore } from "../store/videoDataStore";
 import TrackItem from "./TrackItem.vue";
+import { usePerformance } from "../hooks/usePerformance";
 
-const videoStore = useVideoStore();
-const videoDataStore = useVideoDataStore();
-const { videoUrls } = storeToRefs(videoDataStore);
-const { videoMeta } = storeToRefs(videoStore);
-const { togglePlay } = videoStore;
-const { addVideo } = videoDataStore
-
-
+const { allBlobs } = storeToRefs(useVideoDataStore());
+const { clipMetas, isPlaying, playVideo, init } = useFrameRender();
+const { dragMode } = usePerformance();
 </script>
 
 <style lang="scss">
@@ -44,7 +42,7 @@ const { addVideo } = videoDataStore
   .track-container {
     overflow: auto;
     .track-item {
-      height: 24px;
+      height: 40px;
       background-color: #999;
       border: 1px solid #eee;
       color: #fff;

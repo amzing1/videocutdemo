@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@vueuse/core": "^14.1.0",
+    "@webav/av-cliper": "^1.2.8",
     "dexie": "^4.2.1",
     "mp4box": "^2.3.0",
     "pinia": "^3.0.4",

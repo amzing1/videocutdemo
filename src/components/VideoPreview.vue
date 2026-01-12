@@ -1,56 +1,19 @@
 <template>
   <div class="video-preview">
-    <video
-      ref="mediaRef"
-      crossorigin="anonymous"
-      muted
-      :src="currentVideoUrl"
-      data-testid="video"
-      preload="metadata"
-      @loadeddata="handleLoadedData"
-      @seeked="handleSeeked"
-      @ended="handleCurVideoEnded"
-    ></video>
-    <canvas ref="mediaCanvasRef"></canvas>
-    <div class="debug">
-      <p>start: {{ startTime }}</p>
-      <p>end: {{ endTime }}</p>
-      <p>cost: {{ costTime }}</p>
-    </div>
+    <canvas ref="canvasRef"></canvas>
   </div>
 </template>
 
 <script setup lang="ts">
-import { storeToRefs } from "pinia";
-import { useMediaStore } from "../store/mediaStore";
-import { useVideoStore } from "../store/videoStore";
-import { useVideoDataStore } from "../store/videoDataStore";
-import { usePerformance } from "../hooks/usePerformance";
+import { onMounted, useTemplateRef } from "vue";
+import { useFrameRender } from "../hooks/userFrameRender";
 
-const { mediaRef, mediaCanvasRef } = storeToRefs(useMediaStore());
-const { onVideoLoadedData, videoMeta, togglePlay } = useVideoStore();
-const { currentVideoUrl, currentVideoIdx, videoUrls } = storeToRefs(
-  useVideoDataStore()
-);
-const { startTime, endTime, costTime } = usePerformance();
+const { setCanvas } = useFrameRender();
+const canvasRef = useTemplateRef("canvasRef");
 
-console.log(mediaRef, mediaCanvasRef, videoMeta);
-
-function handleLoadedData() {
-  endTime.value = performance.now();
-  onVideoLoadedData();
-  if (videoMeta.autoPlay) {
-    togglePlay();
-  }
-}
-function handleSeeked() {
-  endTime.value = performance.now();
-}
-function handleCurVideoEnded() {
-  if (currentVideoIdx.value < videoUrls.value.length - 1) {
-    currentVideoIdx.value += 1;
-  }
-}
+onMounted(() => {
+  setCanvas(canvasRef.value!);
+});
 </script>
 
 <style lang="scss">

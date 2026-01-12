@@ -3,14 +3,15 @@
     class="track-item"
     ref="track-item"
     @click="handleClickTrackItem"
+    @mousemove="handleMousemove"
     :style="{
-      width: '800px',
+      width: 40 * duration + 'px',
     }"
   >
     视频{{ videoIdx + 1 }}
     <div
       class="pointer"
-      v-if="currentVideoIdx === videoIdx"
+      v-if="curClipIdx === videoIdx"
       :style="{
         left: pointerLeft,
       }"
@@ -19,40 +20,41 @@
 </template>
 
 <script setup lang="ts">
-import { useMouseInElement } from "@vueuse/core";
+import { useMouseInElement, useThrottleFn } from "@vueuse/core";
 import { computed, useTemplateRef } from "vue";
-import { useVideoStore } from "../store/videoStore";
 import { useVideoDataStore } from "../store/videoDataStore";
 import { storeToRefs } from "pinia";
+
+import { useFrameRender } from "../hooks/userFrameRender";
 import { usePerformance } from "../hooks/usePerformance";
 
-const videoStore = useVideoStore();
 const videoDataStore = useVideoDataStore();
-const { currentVideoIdx } = storeToRefs(videoDataStore);
-const { videoMeta } = storeToRefs(videoStore);
-const { setTime } = videoStore;
-const { startTime } = usePerformance();
+const { curTime, renderAt, curClipIdx } = useFrameRender();
+const { dragMode } = usePerformance();
 
 const props = defineProps<{
   videoIdx: number;
+  duration: number;
 }>();
 
 const trackItemRef = useTemplateRef("track-item");
+const _handleMouseMove = useThrottleFn(handleClickTrackItem, 100);
 
 const { elementX, elementWidth } = useMouseInElement(trackItemRef);
 
 const pointerLeft = computed(() => {
-  return (videoMeta.value.curTime / videoMeta.value.duration) * 100 + "%";
+  return (curTime.value / props.duration) * 100 + "%";
 });
 
 function handleClickTrackItem() {
-  startTime.value = performance.now();
-  if (props.videoIdx === currentVideoIdx.value) {
-    const persent = elementX.value / elementWidth.value;
-    const time = videoMeta.value.duration * persent;
-    setTime(time);
-  } else {
-    currentVideoIdx.value = props.videoIdx;
+  const persent = elementX.value / elementWidth.value;
+  renderAt(props.videoIdx, props.duration * persent);
+}
+
+function handleMousemove() {
+  if (dragMode.value) {
+    // _handleMouseMove();
+    handleClickTrackItem();
   }
 }
 </script>

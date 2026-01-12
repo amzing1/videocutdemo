@@ -1,8 +1,10 @@
 import { defineStore } from "pinia";
 import { computed, ref } from "vue";
-import { videoCache } from "../utils/VideoCacheManager";
+import { useVideoCache } from "../hooks/useVideoCache";
 
 export const useVideoDataStore = defineStore("videoDataStore", () => {
+  const { getVideo } = useVideoCache();
+
   const videoUrls = ref([
     "https://cdn.kesci.com/admin/t8phuh1d1r/1_low_bitrate.mp4",
     "https://cdn.kesci.com/admin/t8phuh1d1r/2_low_bitrate.mp4",
@@ -16,22 +18,25 @@ export const useVideoDataStore = defineStore("videoDataStore", () => {
     "https://cdn.kesci.com/admin/t8phuh1d1r/10_low_bitrate.mp4",
   ]);
 
+  const allBlobs = ref<Blob[]>([]);
+
   const currentVideoIdx = ref(0);
 
-  const currentVideoUrl = ref('');
-  const progress = ref(0);
+  const currentBlob = computed(() => allBlobs.value[currentVideoIdx.value]);
 
-  async function addVideo() {
-    const url = videoUrls.value[currentVideoIdx.value]!;
-    currentVideoUrl.value = await videoCache.getVideo(url, url, (p) => {
-      progress.value = p;
-    })
+  async function addAllVideos() {
+    videoUrls.value.forEach(async (v, i) => {
+      allBlobs.value[i] = await getVideo(v, v);
+    });
   }
+
+  addAllVideos();
 
   return {
     videoUrls,
     currentVideoIdx,
-    currentVideoUrl,
-    addVideo
+    currentBlob,
+    allBlobs,
+    addAllVideos,
   };
 });

@@ -7,9 +7,12 @@ export const usePerformance = createSharedComposable(() => {
 
   const costTime = computed(() => (endTime.value - startTime.value) / 1000);
 
+  const dragMode = ref(false);
+
   return {
     startTime,
     endTime,
     costTime,
+    dragMode,
   };
 });
