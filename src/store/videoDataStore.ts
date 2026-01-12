@@ -1,17 +1,9 @@
 import { defineStore } from "pinia";
 import { computed, ref } from "vue";
+import { videoCache } from "../utils/VideoCacheManager";
 
 export const useVideoDataStore = defineStore("videoDataStore", () => {
   const videoUrls = ref([
-    // "https://cdn.kesci.com/admin/t8mzcj10mk/1_processed.mp4",
-    // "https://cdn.kesci.com/admin/t8mzcj10mk/5_processed.mp4",
-    // "https://cdn.kesci.com/admin/t8mzcj10mk/3_processed.mp4",
-    // "https://cdn.kesci.com/admin/t8orv3i4b/3_low_bitrate.mp4",
-    // "https://cdn.kesci.com/admin/t8mzcj10mk/4_processed.mp4",
-    // "https://cdn.kesci.com/admin/t8mzcj10mk/7_processed.mp4",
-    // "https://cdn.kesci.com/admin/t8mzcj10mk/8_processed.mp4",
-    // "https://cdn.kesci.com/admin/t8mzcj10mk/9_processed.mp4",
-    // "https://cdn.kesci.com/admin/t8mzcj10mk/10_processed.mp4",
     "https://cdn.kesci.com/admin/t8phuh1d1r/1_low_bitrate.mp4",
     "https://cdn.kesci.com/admin/t8phuh1d1r/2_low_bitrate.mp4",
     "https://cdn.kesci.com/admin/t8phuh1d1r/3_low_bitrate.mp4",
@@ -26,15 +18,20 @@ export const useVideoDataStore = defineStore("videoDataStore", () => {
 
   const currentVideoIdx = ref(0);
 
-  const currentVideoUrl = computed(
-    () => videoUrls.value[currentVideoIdx.value]
-  );
+  const currentVideoUrl = ref('');
+  const progress = ref(0);
 
-  async function setVideoIdx(idx: number) {}
+  async function addVideo() {
+    const url = videoUrls.value[currentVideoIdx.value]!;
+    currentVideoUrl.value = await videoCache.getVideo(url, url, (p) => {
+      progress.value = p;
+    })
+  }
 
   return {
     videoUrls,
     currentVideoIdx,
     currentVideoUrl,
+    addVideo
   };
 });

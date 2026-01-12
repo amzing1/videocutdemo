@@ -1,6 +1,7 @@
 <template>
   <div class="timeline">
     <div class="video-controller">
+      <button @click="addVideo">加载下一个视频</button>
       <button @click="togglePlay">
         {{ videoMeta.isPlaying ? "暂停" : "播放" }}
       </button>
@@ -26,6 +27,9 @@ const videoDataStore = useVideoDataStore();
 const { videoUrls } = storeToRefs(videoDataStore);
 const { videoMeta } = storeToRefs(videoStore);
 const { togglePlay } = videoStore;
+const { addVideo } = videoDataStore
+
+
 </script>
 
 <style lang="scss">
