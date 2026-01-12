@@ -19,11 +19,16 @@ export const useVideoDataStore = defineStore("videoDataStore", () => {
 
   const currentVideoIdx = ref(0);
 
+  /**当前是否有 video 标签缓存，若无，需等待 loadedData 事件完成后才绘制，防止黑屏 */
+  const curHasCache = ref(true);
+
   const currentVideoUrl = computed(
     () => videoUrls.value[currentVideoIdx.value]
   );
 
   async function setVideoIdx(idx: number) {
+    curHasCache.value = cachedIdxs.value.includes(idx);
+
     let targets: number[] = [];
     if (idx <= 2) {
       targets = [0, 1, 2, 3, 4];
@@ -58,6 +63,7 @@ export const useVideoDataStore = defineStore("videoDataStore", () => {
     currentVideoIdx,
     currentVideoUrl,
     cachedIdxs,
+    curHasCache,
     setVideoIdx,
   };
 });

@@ -5,7 +5,7 @@ import { useVideoDataStore } from "./videoDataStore";
 export const useVideoStore = defineStore("video", () => {
   const { mediaRef } = storeToRefs(useMediaStore());
   const { onMediaLoaded, draw, setCurMedia } = useMediaStore();
-  const { cachedIdxs } = storeToRefs(useVideoDataStore());
+  const { cachedIdxs, videoUrls, currentVideoUrl } = storeToRefs(useVideoDataStore());
   const videoMeta = reactive({
     curTime: 0,
     totalFrameCount: 0,
@@ -13,6 +13,7 @@ export const useVideoStore = defineStore("video", () => {
     isPlaying: false,
     duration: 0,
     autoPlay: false,
+    moveMode: false
   });
   let isFirstLoaded = true;
 
@@ -26,24 +27,17 @@ export const useVideoStore = defineStore("video", () => {
       isFirstLoaded = false;
     }
   }
-  // async function onVideoLoadedData() {
-  //   if (!mediaRef.value) return;
-  //   onMediaLoaded();
-  //   videoMeta.duration = (mediaRef.value as HTMLVideoElement).duration;
-  //   if (isFirstLoaded) {
-  //     drawVideo();
-  //     isFirstLoaded = false;
-  //   }
-  // }
   function drawVideo() {
     const innerDraw = () => {
       if (!mediaRef.value) return;
-      draw();
-      mediaRef.value = mediaRef.value as HTMLVideoElement;
-      if (videoMeta.isPlaying) {
-        videoMeta.curTime = mediaRef.value.currentTime;
-      }
-      videoMeta.isPlaying = !mediaRef.value.paused;
+      
+        draw();
+        mediaRef.value = mediaRef.value as HTMLVideoElement;
+        if (videoMeta.isPlaying) {
+          videoMeta.curTime = mediaRef.value.currentTime;
+        }
+        videoMeta.isPlaying = !mediaRef.value.paused;
+      
       requestAnimationFrame(innerDraw);
     };
     innerDraw();

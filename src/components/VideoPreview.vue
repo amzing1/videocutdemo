@@ -27,12 +27,12 @@ import { useMediaStore } from "../store/mediaStore";
 import { useVideoStore } from "../store/videoStore";
 import { useVideoDataStore } from "../store/videoDataStore";
 import { usePerformance } from "../hooks/usePerformance";
-import { onMounted, ref } from "vue";
+import { nextTick, onMounted, ref } from "vue";
 
 const { mediaRef, mediaCanvasRef, videoRefs } = storeToRefs(useMediaStore());
 const { setCurMedia } = useMediaStore();
 const { setCurVideo, videoMeta } = useVideoStore();
-const { cachedIdxs, videoUrls, currentVideoIdx } = storeToRefs(
+const { cachedIdxs, videoUrls, currentVideoIdx, curHasCache } = storeToRefs(
   useVideoDataStore()
 );
 const { setVideoIdx } = useVideoDataStore();
@@ -45,10 +45,10 @@ onMounted(() => {
 });
 
 function handleLoadedData(idx: number) {
-  console.log("handleLoadedData", idx, currentVideoIdx.value);
-
   if (idx === currentVideoIdx.value) {
     setCurVideo(idx);
+    curHasCache.value = true;
+    console.log('curHasCache')
   }
 }
 function handleSeeked(idx: number) {
@@ -56,10 +56,11 @@ function handleSeeked(idx: number) {
     endTime.value = performance.now();
   }
 }
-function handleCurVideoEnded() {
+async function handleCurVideoEnded() {
   if (currentVideoIdx.value < videoUrls.value.length - 1) {
     const idx = currentVideoIdx.value + 1;
     setVideoIdx(idx);
+    await nextTick();
     setCurVideo(idx);
     if (videoMeta.autoPlay) {
       mediaRef.value?.play();

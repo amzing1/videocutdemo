@@ -1,7 +1,9 @@
-import { defineStore } from "pinia";
+import { defineStore, storeToRefs } from "pinia";
 import { reactive, ref } from "vue";
+import { useVideoDataStore } from "./videoDataStore";
 
 export const useMediaStore = defineStore("mediaStore", () => {
+  const { curHasCache } = storeToRefs(useVideoDataStore())
   const canvasPos = reactive({
     w: 0,
     h: 0,
@@ -41,6 +43,10 @@ export const useMediaStore = defineStore("mediaStore", () => {
   function draw() {
     const innerDraw = () => {
       if (!mediaCanvasRef.value || !mediaRef.value) return;
+      if (!curHasCache.value) {
+        console.log('不画', mediaRef.value.src);
+        return;
+      }
       const mediaCtx = mediaCanvasRef.value.getContext("2d")!;
       mediaCtx.save();
       mediaCtx.clearRect(
