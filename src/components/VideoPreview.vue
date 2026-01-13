@@ -1,15 +1,20 @@
 <template>
   <div class="video-preview">
     <canvas ref="canvasRef"></canvas>
+    <div class="debug">
+      提取视频帧花费时间：{{ costTime }}
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { onMounted, useTemplateRef } from "vue";
 import { useFrameRender } from "../hooks/userFrameRender";
+import { usePerformance } from "../hooks/usePerformance";
 
 const { setCanvas } = useFrameRender();
 const canvasRef = useTemplateRef("canvasRef");
+const { costTime } = usePerformance();
 
 onMounted(() => {
   setCanvas(canvasRef.value!);

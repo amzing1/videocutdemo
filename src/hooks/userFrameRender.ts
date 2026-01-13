@@ -1,13 +1,22 @@
 import { createSharedComposable } from "@vueuse/core";
 import { MP4Clip } from "@webav/av-cliper";
 import { computed, ref, shallowRef } from "vue";
+import { usePerformance } from "./usePerformance";
 
 interface ClipMeta {
   duration: number;
+  width: number;
+  height: number;
   id: number;
+  thumbnails: {
+    ts: number;
+    img: Blob;
+  }[]
 }
 
 export const useFrameRender = createSharedComposable(() => {
+
+  const { startTime, endTime } = usePerformance();
   const clips: MP4Clip[] = [];
   const clipMetas = ref<ClipMeta[]>([]);
   const curClipIdx = ref(0);
@@ -25,16 +34,22 @@ export const useFrameRender = createSharedComposable(() => {
     const loadClip = async (blob: Blob, id: number) => {
       const clip = new MP4Clip(blob.stream());
       await clip.ready;
+      let _cur = performance.now();
+      const res = await clip.thumbnails(100, {
+        step: 1e6 * 0.5
+      });
+      console.log('缩略图生成用时', performance.now() - _cur)
       clips[id] = clip;
       clipMetas.value[id] = {
         duration: clip.meta.duration / 1000000,
         id,
+        thumbnails: res,
+        width: clip.meta.width,
+        height: clip.meta.height
       };
     };
 
-    blobs.forEach((v, i) => {
-      loadClip(v, i);
-    });
+    await Promise.all(blobs.map((v, i) => loadClip(v, i)));
   }
 
   async function renderAt(key: number, time: number) {
@@ -46,7 +61,11 @@ export const useFrameRender = createSharedComposable(() => {
     curTime.value = time;
     curClipIdx.value = key;
 
+    startTime.value = performance.now();
+    
+    const a = clip.splitTrack()
     const { video, state } = await clip.tick(time * 1000000);
+    endTime.value = performance.now();
 
     if (state === "success" && video) {
       const [w, h, cw, ch, dx, dy] = getViewport(video!);
@@ -58,7 +77,7 @@ export const useFrameRender = createSharedComposable(() => {
       );
 
       canvasCtx.drawImage(video, 0, 0, w, h, dx, dy, cw, ch);
-      video.close();
+      // video.close();
     }
   }
 
@@ -120,9 +139,6 @@ export const useFrameRender = createSharedComposable(() => {
     return [w, h, cw, ch, dx, dy];
   }
 
-  // function destroy() {
-  //   clip?.destroy();
-  // }
 
   return {
     clips,
